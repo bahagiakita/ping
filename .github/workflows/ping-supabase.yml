@@ -1,0 +1,90 @@
+name: Ping Multiple Supabase Projects
+
+on:
+  schedule:
+    # Berjalan setiap 3 hari sekali pada jam 00:00 UTC
+    - cron: "0 0 */3 * *"
+  workflow_dispatch: # Memungkinkan trigger manual
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        project:
+          # ========================================
+          # KONFIGURASI PROJECTS
+          # ========================================
+          # Tambah/hapus project sesuai kebutuhan:
+          # - Jika hanya 1 project, hapus yang lain
+          # - Jika ada 5 project, tambahkan 2 lagi
+          # - Setiap project butuh 2 secrets di GitHub
+          # ========================================
+
+          - name: "Project 1"
+            url_secret: "SUPABASE_URL_1"
+            key_secret: "SUPABASE_ANON_KEY_1"
+
+          # Uncomment jika ada project ke-2
+          # - name: "Project 2"
+          #   url_secret: "SUPABASE_URL_2"
+          #   key_secret: "SUPABASE_ANON_KEY_2"
+
+          # Uncomment jika ada project ke-3
+          # - name: "Project 3"
+          #   url_secret: "SUPABASE_URL_3"
+          #   key_secret: "SUPABASE_ANON_KEY_3"
+
+          # Tambahkan project lain dengan format yang sama:
+          # - name: "Nama Project"
+          #   url_secret: "SUPABASE_URL_X"
+          #   key_secret: "SUPABASE_ANON_KEY_X"
+
+      fail-fast: false # Lanjutkan ping project lain meskipun ada yang gagal
+
+    name: Ping ${{ matrix.project.name }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Ping Supabase - ${{ matrix.project.name }}
+        env:
+          SUPABASE_URL: ${{ secrets[matrix.project.url_secret] }}
+          SUPABASE_ANON_KEY: ${{ secrets[matrix.project.key_secret] }}
+        run: |
+          echo "🔄 Melakukan ping ke ${{ matrix.project.name }}..."
+
+          # Validasi environment variables
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_ANON_KEY" ]; then
+            echo "⚠️  Warning: Secrets tidak ditemukan untuk ${{ matrix.project.name }}"
+            echo "   Pastikan ${{ matrix.project.url_secret }} dan ${{ matrix.project.key_secret }} sudah ditambahkan di GitHub Secrets"
+            exit 0
+          fi
+
+          # Ping menggunakan REST API
+          response=$(curl -s -w "\n%{http_code}" \
+            -H "apikey: $SUPABASE_ANON_KEY" \
+            -H "Authorization: Bearer $SUPABASE_ANON_KEY" \
+            "$SUPABASE_URL/rest/v1/" \
+          )
+
+          http_code=$(echo "$response" | tail -n1)
+
+          if [ "$http_code" -eq 200 ] || [ "$http_code" -eq 404 ]; then
+            echo "✅ Ping berhasil ke ${{ matrix.project.name }}!"
+            echo "   HTTP Status: $http_code"
+            echo "   URL: $SUPABASE_URL"
+            echo "   ⏰ Waktu: $(date)"
+          else
+            echo "❌ Ping gagal ke ${{ matrix.project.name }}!"
+            echo "   HTTP Status: $http_code"
+            echo "   URL: $SUPABASE_URL"
+            exit 1
+          fi
+
+      - name: Log hasil
+        if: always()
+        run: |
+          echo "📊 Status: Ping ${{ matrix.project.name }} selesai"
+          echo "🕐 Timestamp: $(date -u +"%Y-%m-%d %H:%M:%S UTC")"
