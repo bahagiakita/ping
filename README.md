@@ -1,160 +1,164 @@
-# Supabase Multi-Project Ping Tool
+# 🔄 Supabase Ping Tool - Panduan Mudah
 
-Tools otomatis untuk melakukan ping ke **beberapa project Supabase** sekaligus agar tidak shutdown karena inaktivitas.
+Tool otomatis untuk ping Supabase agar database tidak shutdown karena inaktivitas.
 
-## ✨ Fitur
+---
 
-- 🔄 Ping otomatis ke multiple Supabase projects
-- ⏰ Jadwal yang dapat dikustomisasi
-- 🚀 Berjalan parallel untuk efisiensi
-- 📊 Log terpisah untuk setiap project
-- ⚡ Gratis menggunakan GitHub Actions
+## 🎯 Apa yang Dilakukan Tool Ini?
 
-## 🚀 Cara Setup
+Tool ini akan **ping database Supabase Anda secara otomatis setiap 3 hari** menggunakan GitHub Actions (gratis!).
 
-### 1. Konfigurasi Projects
+---
 
-Edit file `.github/workflows/ping-supabase.yml` untuk menambah/mengurangi project:
+## � Setup - Ikuti Langkah Ini
 
-```yaml
-strategy:
-  matrix:
-    project:
-      - name: "Project 1"
-        url_secret: "SUPABASE_URL_1"
-        key_secret: "SUPABASE_ANON_KEY_1"
-      - name: "Project 2"
-        url_secret: "SUPABASE_URL_2"
-        key_secret: "SUPABASE_ANON_KEY_2"
-      # Tambahkan project lain di sini
+### **STEP 1: Dapatkan Supabase Credentials**
+
+1. Buka [Supabase Dashboard](https://app.supabase.com)
+2. Pilih project Anda
+3. Klik **Settings** (⚙️) di sidebar kiri
+4. Klik **API**
+5. Copy 2 hal ini:
+   - **Project URL** (contoh: `https://xxxxx.supabase.co`)
+   - **anon public** key (yang panjang, dimulai dengan `eyJh...`)
+
+**Simpan di notepad sementara!**
+
+---
+
+### **STEP 2: Push Repository ke GitHub**
+
+```bash
+# Di folder ini
+git add .
+git commit -m "Setup Supabase ping tool"
+git push origin main
 ```
 
-**Contoh untuk 5 projects:**
+---
+
+### **STEP 3: Tambahkan Secrets di GitHub**
+
+1. Buka repository Anda di GitHub
+2. Klik **Settings** (tab paling kanan)
+3. Di sidebar kiri, klik **Secrets and variables** → **Actions**
+4. Klik **New repository secret**
+
+**Tambahkan 2 secrets:**
+
+**Secret 1:**
+
+- Name: `SUPABASE_URL_1`
+- Value: Paste **Project URL** dari Step 1
+
+**Secret 2:**
+
+- Name: `SUPABASE_ANON_KEY_1`
+- Value: Paste **anon public key** dari Step 1
+
+---
+
+### **STEP 4: Aktifkan GitHub Actions**
+
+1. Klik tab **Actions** di repository
+2. Jika ada tombol **"I understand my workflows, go ahead and enable them"**, klik tombol itu
+3. Selesai! ✅
+
+---
+
+## ✅ Verifikasi
+
+### Test Manual (Opsional)
+
+1. Pergi ke tab **Actions**
+2. Klik **Ping Multiple Supabase Projects** di sidebar kiri
+3. Klik **Run workflow** → **Run workflow**
+4. Tunggu beberapa detik
+5. Klik workflow run yang muncul
+6. Klik **Ping Project 1**
+7. Lihat log - seharusnya ada ✅ **Ping berhasil!**
+
+---
+
+## 🎯 Selesai!
+
+Tool akan otomatis ping Supabase Anda **setiap 3 hari** pada jam 00:00 UTC.
+
+Anda tidak perlu melakukan apa-apa lagi! 🎉
+
+---
+
+## 🔧 Untuk Ping Lebih dari 1 Project
+
+Jika Anda punya beberapa project Supabase:
+
+### 1. Edit File Workflow
+
+Buka file `.github/workflows/ping-supabase.yml`
+
+Uncomment (hapus `#`) bagian Project 2 atau 3:
 
 ```yaml
-- name: "Production DB"
-  url_secret: "SUPABASE_URL_PROD"
-  key_secret: "SUPABASE_ANON_KEY_PROD"
-- name: "Staging DB"
-  url_secret: "SUPABASE_URL_STAGING"
-  key_secret: "SUPABASE_ANON_KEY_STAGING"
-- name: "Development DB"
-  url_secret: "SUPABASE_URL_DEV"
-  key_secret: "SUPABASE_ANON_KEY_DEV"
-- name: "Testing DB"
-  url_secret: "SUPABASE_URL_TEST"
-  key_secret: "SUPABASE_ANON_KEY_TEST"
-- name: "Demo DB"
-  url_secret: "SUPABASE_URL_DEMO"
-  key_secret: "SUPABASE_ANON_KEY_DEMO"
+# Uncomment jika ada project ke-2
+- name: "Project 2"
+  url_secret: "SUPABASE_URL_2"
+  key_secret: "SUPABASE_ANON_KEY_2"
 ```
 
-### 2. Setup GitHub Secrets
-
-Tambahkan secrets untuk **setiap project** di repository GitHub Anda:
-
-1. Buka repository di GitHub
-2. Pergi ke **Settings** → **Secrets and variables** → **Actions**
-3. Klik **New repository secret**
-4. Tambahkan secrets sesuai dengan nama yang didefinisikan di workflow
-
-**Contoh untuk 3 projects:**
-
-| Secret Name           | Value                       |
-| --------------------- | --------------------------- |
-| `SUPABASE_URL_1`      | `https://xxxxx.supabase.co` |
-| `SUPABASE_ANON_KEY_1` | `eyJhbGc...`                |
-| `SUPABASE_URL_2`      | `https://yyyyy.supabase.co` |
-| `SUPABASE_ANON_KEY_2` | `eyJhbGc...`                |
-| `SUPABASE_URL_3`      | `https://zzzzz.supabase.co` |
-| `SUPABASE_ANON_KEY_3` | `eyJhbGc...`                |
-
-> 💡 **Cara mendapatkan credentials:**
->
-> 1. Buka [Supabase Dashboard](https://app.supabase.com)
-> 2. Pilih project Anda
-> 3. Pergi ke **Settings** → **API**
-> 4. Copy **Project URL** dan **anon/public key**
-
-### 2. Aktifkan GitHub Actions
-
-1. Push repository ini ke GitHub
-2. Pergi ke tab **Actions** di repository
-3. Jika diminta, klik **Enable GitHub Actions**
-4. Workflow akan berjalan otomatis sesuai jadwal
-
-## ⏰ Jadwal Ping
-
-GitHub Action akan melakukan ping:
-
-- **Otomatis**: Setiap 3 hari sekali pada jam 00:00 UTC
-- **Manual**: Bisa trigger manual melalui tab Actions → Ping Supabase → Run workflow
-
-## 📊 Monitoring
-
-Untuk melihat hasil ping:
-
-1. Buka tab **Actions** di repository
-2. Klik workflow run yang ingin dilihat
-3. Anda akan melihat job terpisah untuk setiap project (misalnya: "Ping Project 1", "Ping Project 2")
-4. Klik job untuk melihat log detail ping project tersebut
-
-> ✅ Setiap project akan di-ping secara **parallel** untuk efisiensi waktu
-
-## 🔧 Kustomisasi
-
-### Mengubah Frekuensi Ping
-
-Edit file `.github/workflows/ping-supabase.yml`:
+Menjadi:
 
 ```yaml
-schedule:
-  # Setiap 3 jam
-  - cron: "0 */3 * * *"
-
-  # Setiap 12 jam
-  - cron: "0 */12 * * *"
-
-  # Setiap hari jam 00:00 UTC
-  - cron: "0 0 * * *"
+- name: "Project 2"
+  url_secret: "SUPABASE_URL_2"
+  key_secret: "SUPABASE_ANON_KEY_2"
 ```
 
-> 📖 Referensi cron syntax: [Crontab Guru](https://crontab.guru)
+### 2. Tambahkan Secrets untuk Project 2
+
+Di GitHub Secrets, tambahkan:
+
+- `SUPABASE_URL_2` → URL project ke-2
+- `SUPABASE_ANON_KEY_2` → Key project ke-2
+
+### 3. Push Changes
+
+```bash
+git add .
+git commit -m "Add project 2"
+git push
+```
+
+Selesai! Sekarang 2 project akan di-ping.
+
+---
 
 ## ❓ Troubleshooting
 
-### Workflow tidak berjalan
+### "Workflow tidak berjalan"
 
-- Pastikan repository adalah **public** atau Anda memiliki GitHub Actions minutes untuk private repo
-- Pastikan GitHub Actions sudah diaktifkan di repository settings
+- Pastikan repository **public** (atau punya GitHub Actions minutes untuk private repo)
+- Pastikan GitHub Actions sudah diaktifkan
 
-### Ping gagal untuk semua projects
+### "Ping gagal"
 
-- Periksa apakah secrets sudah ditambahkan dengan nama yang benar
-- Pastikan format nama secret sesuai dengan yang didefinisikan di workflow
-- Cek log di tab Actions untuk detail error
+- Cek apakah URL dan key sudah benar
+- Pastikan nama secret **persis sama**: `SUPABASE_URL_1` dan `SUPABASE_ANON_KEY_1`
+- Lihat log di tab Actions untuk detail error
 
-### Ping gagal untuk project tertentu
+### "Secret tidak ditemukan"
 
-- Periksa apakah `SUPABASE_URL_X` dan `SUPABASE_ANON_KEY_X` sudah benar untuk project tersebut
-- Pastikan Supabase project masih aktif
-- Project lain akan tetap di-ping meskipun ada yang gagal (fail-fast: false)
+- Nama secret harus **persis sama** (huruf besar/kecil harus sama)
+- Cek lagi di Settings → Secrets and variables → Actions
 
-### Secret tidak ditemukan
+---
 
-- Pastikan nama secret di GitHub Secrets **persis sama** dengan yang didefinisikan di workflow
-- Nama secret bersifat case-sensitive (huruf besar/kecil harus sama)
-- Jika project tidak memiliki secret, workflow akan skip dengan warning
+## 📝 Info Tambahan
 
-## 📝 Catatan
+- **Jadwal**: Setiap 3 hari sekali
+- **Gratis**: GitHub Actions gratis untuk public repository
+- **Parallel**: Jika ada banyak project, semua di-ping bersamaan
+- **Fail-safe**: Jika 1 project gagal, yang lain tetap jalan
 
-- GitHub Actions gratis untuk public repositories
-- Untuk private repositories, ada limit monthly minutes (2000 menit/bulan untuk free tier)
-- Setiap ping hanya memakan waktu beberapa detik
-- **Parallel execution**: Semua projects di-ping secara bersamaan untuk efisiensi
-- **Fail-safe**: Jika satu project gagal, project lain tetap akan di-ping
-- Anda bisa menambah/mengurangi project kapan saja dengan edit workflow file
+---
 
-## 📄 License
-
-MIT
+**Itu saja! Simple kan?** �
